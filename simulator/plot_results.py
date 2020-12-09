@@ -124,10 +124,13 @@ def get_average_specs(route_vect):
 def main():
     """plot results."""
 
-
     # set config
     plot_avg = True
-    # plot_avg = False 
+    # plot_avg = False
+
+    plot_type = "load"
+    # plot_type = "points"
+    # plot_type = "dist"
 
     # Instantiate the data problem.
     data = create_data_model()
@@ -194,17 +197,23 @@ def main():
             stdev_points.append(v["points"])
             stdev_dist.append(v["distance"])
 
-        mat_chart.append(avg_loads if plot_avg else stdev_loads)
-        # mat_chart.append(avg_points if plot_avg else stdev_points)
-        # mat_chart.append(avg_dist if plot_avg else stdev_dist)
+        if plot_type == "load":
+            mat_chart.append(avg_loads if plot_avg else stdev_loads)
+        elif plot_type == "points":
+            mat_chart.append(avg_points if plot_avg else stdev_points)
+        elif plot_type == "dist":
+            mat_chart.append(avg_dist if plot_avg else stdev_dist)
 
     mat_chart_np = np.array(mat_chart)
     print(np.shape(mat_chart_np))
     mat_chart_np = np.transpose(mat_chart_np)
     mat_chart = mat_chart_np.tolist()
-    labels = ["p " + str(i+1) + " (" + str(d) + ")" for i, d in enumerate(data['vehicle_capacities'])]
+    labels = ["p" + str(i+1) + " (" + str(d) + ")" for i,
+              d in enumerate(data['vehicle_capacities'])]
     colors = [None for d in data['vehicle_capacities']]
-    graph.plot_timeseries_multi(mat_chart, demand_factor_range, labels, colors, "VRP load balancing", "demand factor", "average load" if plot_avg else "stdev load", False)
+    fig = graph.plot_timeseries_multi(mat_chart, demand_factor_range, labels, colors,
+                                      "VRP load balancing", "demand factor", "average " + plot_type if plot_avg else "stdev " + plot_type, False)
+    fig.savefig("figs/results_"+plot_type+ "_" + ("avg" if plot_avg else "stdev") + ".png", dpi=300)
 
 
 if __name__ == '__main__':

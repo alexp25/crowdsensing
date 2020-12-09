@@ -39,14 +39,20 @@ def plot_timeseries_multi(timeseries_array, xval, labels, colors, title, xlabel,
 
     fig = None
 
+    figsize = (10,8)
+
     if not separate:
-        fig = plt.figure(id)
+        fig = plt.figure(id, figsize=figsize)
 
     set_plot_font()
 
+    plt.grid(zorder=0)
+    
+    legend_loc = "upper left"
+
     for i, ts in enumerate(timeseries_array):
         if separate:
-            fig = plt.figure(id)
+            fig = plt.figure(id, figsize=figsize)
         id += 1
         x = xval
         y = ts
@@ -55,12 +61,17 @@ def plot_timeseries_multi(timeseries_array, xval, labels, colors, title, xlabel,
 
         if separate:
             set_disp(title, xlabel, ylabel)
-            plt.legend()
+            plt.grid(zorder=0)
+            plt.legend(loc=legend_loc, fontsize=FSIZE_LABEL_XS)
             plt.show(block=False)
+
+    # plt.xticks(rotation=rotation)
+
+    plt.grid(zorder=0) 
 
     if not separate:
         set_disp(title, xlabel, ylabel)
-        plt.legend()
+        plt.legend(loc=legend_loc, fontsize=FSIZE_LABEL_XS)
         fig = plt.gcf()
         plt.show()
 
