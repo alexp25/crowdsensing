@@ -50,6 +50,9 @@ demands:
 
 options:
   demand_factor: 5
+  use_range: True
+  demand_factor_range: [1,15]
+  n_iter: 1000
 
 vehicles:
 

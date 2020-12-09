@@ -7,11 +7,14 @@ from ortools.constraint_solver import pywrapcp
 import yaml
 import csv
 import traceback
+import json
 
-from modules import plot_routes
+from modules import plot_routes, geometry
+import compute_geometry
 
 
 def create_data_model():
+    global config, input_data
     """Stores the data for the problem."""
     data = {}
 
@@ -83,92 +86,138 @@ def create_data_model():
     return data
 
 
+n_iter = 100
+
+
 def main():
     """Solve the CVRP problem."""
     # Instantiate the data problem.
     data = create_data_model()
+    compute_geometry.load_config()
+    n_iter = input_data["options"]["n_iter"]
+    routes_vect = []
 
-    # Create the routing index manager.
-    # manager = pywrapcp.RoutingIndexManager(len(data['distance_matrix']),
-    #                                        data['num_vehicles'], data['depot'])
+    if input_data["options"]["use_range"]:
+        # use demand factor range
+        demand_factor_range = input_data["options"]["demand_factor_range"]
+        demand_factor_range = range(
+            demand_factor_range[0], demand_factor_range[1] + 1)
+        print("using demand factor range: ", list(demand_factor_range))
+    else:
+        # use specified demand factor
+        demand_factor_range = [input_data["options"]["demand_factor"]]
+        print("using default demand factor: ", list(demand_factor_range))
 
-    manager = pywrapcp.RoutingIndexManager(len(data['distance_matrix']),
-                                           data['num_vehicles'], data['starts'],
-                                           data['ends'])
+    geometry.init_random(False)
 
-    # Create Routing Model.
-    routing = pywrapcp.RoutingModel(manager)
+    for i_df, df in enumerate(demand_factor_range):
+        data['demands'] = [int(d) * df
+                           for d in input_data["demands"]]
+        for i in range(n_iter):
+            if i == 0:
+                data['distance_matrix'] = compute_geometry.compute_distance_matrix_wrapper()
+            else:
+                data['distance_matrix'] = compute_geometry.get_distance_matrix_with_random_depots()
 
-    # Create and register a transit callback.
+            print("iteration: " + str(i) + " with demand factor: " + str(df) + " [" +
+                  str(int((i_df * n_iter + i)/(len(demand_factor_range) * n_iter)*100)) + "%]")
 
-    def distance_callback(from_index, to_index):
-        """Returns the distance between the two nodes."""
-        # Convert from routing variable Index to distance matrix NodeIndex.
-        from_node = manager.IndexToNode(from_index)
-        to_node = manager.IndexToNode(to_index)
-        return data['distance_matrix'][from_node][to_node]
+            # Create the routing index manager.
+            # manager = pywrapcp.RoutingIndexManager(len(data['distance_matrix']),
+            #                                        data['num_vehicles'], data['depot'])
 
-    transit_callback_index = routing.RegisterTransitCallback(distance_callback)
+            manager = pywrapcp.RoutingIndexManager(len(data['distance_matrix']),
+                                                   data['num_vehicles'], data['starts'],
+                                                   data['ends'])
 
-    # Define cost of each arc.
-    routing.SetArcCostEvaluatorOfAllVehicles(transit_callback_index)
+            # Create Routing Model.
+            routing = pywrapcp.RoutingModel(manager)
 
-    # Add Capacity constraint.
+            # Create and register a transit callback.
 
-    def demand_callback(from_index):
-        """Returns the demand of the node."""
-        # Convert from routing variable Index to demands NodeIndex.
-        from_node = manager.IndexToNode(from_index)
-        return data['demands'][from_node]
+            def distance_callback(from_index, to_index):
+                """Returns the distance between the two nodes."""
+                # Convert from routing variable Index to distance matrix NodeIndex.
+                from_node = manager.IndexToNode(from_index)
+                to_node = manager.IndexToNode(to_index)
+                return data['distance_matrix'][from_node][to_node]
 
-    demand_callback_index = routing.RegisterUnaryTransitCallback(
-        demand_callback)
+            transit_callback_index = routing.RegisterTransitCallback(
+                distance_callback)
 
-    routing.AddDimensionWithVehicleCapacity(
-        demand_callback_index,
-        0,  # null capacity slack
-        data['vehicle_capacities'],  # vehicle maximum capacities
-        True,  # start cumul to zero
-        'Capacity')
+            # Define cost of each arc.
+            routing.SetArcCostEvaluatorOfAllVehicles(transit_callback_index)
 
-    # Add the maximum distance travel constraint for each vehicle:
-    routing.AddDimensionWithVehicleCapacity(
-        transit_callback_index,
-        0,  # null capacity slack
-        data['vehicle_fuel'],  # vehicle fuel / max daily/travel distance
-        True,  # start cumul to zero
-        'DailyDistance')
+            # Add Capacity constraint.
 
-    # Allow to drop nodes.
-    penalty = 10000
-    for node in range(1, len(data['distance_matrix'])):
-        routing.AddDisjunction([manager.NodeToIndex(node)], penalty)
+            def demand_callback(from_index):
+                """Returns the demand of the node."""
+                # Convert from routing variable Index to demands NodeIndex.
+                from_node = manager.IndexToNode(from_index)
+                return data['demands'][from_node]
 
-    # Setting first solution heuristic.
-    search_parameters = pywrapcp.DefaultRoutingSearchParameters()
-    search_parameters.first_solution_strategy = (
-        routing_enums_pb2.FirstSolutionStrategy.PATH_CHEAPEST_ARC)
+            demand_callback_index = routing.RegisterUnaryTransitCallback(
+                demand_callback)
 
-    # search_parameters.first_solution_strategy = (
-    #     routing_enums_pb2.FirstSolutionStrategy.AUTOMATIC)
+            routing.AddDimensionWithVehicleCapacity(
+                demand_callback_index,
+                0,  # null capacity slack
+                data['vehicle_capacities'],  # vehicle maximum capacities
+                True,  # start cumul to zero
+                'Capacity')
 
-    search_parameters.local_search_metaheuristic = (
-        routing_enums_pb2.LocalSearchMetaheuristic.GUIDED_LOCAL_SEARCH)
+            # Add the maximum distance travel constraint for each vehicle:
+            routing.AddDimensionWithVehicleCapacity(
+                transit_callback_index,
+                0,  # null capacity slack
+                # vehicle fuel / max daily/travel distance
+                data['vehicle_fuel'],
+                True,  # start cumul to zero
+                'DailyDistance')
 
-    time_limit = 1
-    search_parameters.time_limit.FromSeconds(time_limit)
+            # Allow to drop nodes.
+            penalty = 10000
+            for node in range(1, len(data['distance_matrix'])):
+                routing.AddDisjunction([manager.NodeToIndex(node)], penalty)
 
-    # Total Distance of all routes: 18041m
-    # Total Load of all routes: 47
+            # Setting first solution heuristic.
+            search_parameters = pywrapcp.DefaultRoutingSearchParameters()
+            search_parameters.first_solution_strategy = (
+                routing_enums_pb2.FirstSolutionStrategy.PATH_CHEAPEST_ARC)
 
-    print("running solver max time limit: " + str(time_limit))
-    # Solve the problem.
-    assignment = routing.SolveWithParameters(search_parameters)
+            # search_parameters.first_solution_strategy = (
+            #     routing_enums_pb2.FirstSolutionStrategy.AUTOMATIC)
 
-    # Print solution on console.
-    if assignment:
-        routes = plot_routes.print_solution(data, manager, routing, assignment)
-        print(routes)
+            search_parameters.local_search_metaheuristic = (
+                routing_enums_pb2.LocalSearchMetaheuristic.GUIDED_LOCAL_SEARCH)
+
+            time_limit = 1
+            search_parameters.time_limit.FromSeconds(time_limit)
+
+            # Total Distance of all routes: 18041m
+            # Total Load of all routes: 47
+
+            print("running solver max time limit: " + str(time_limit))
+            # Solve the problem.
+            assignment = routing.SolveWithParameters(search_parameters)
+
+            # Print solution on console.
+            if assignment:
+                routes = plot_routes.print_solution(
+                    data, manager, routing, assignment)
+                routes_vect.append(routes)
+                print(routes)
+
+        disp_routes = json.dumps(routes_vect)
+
+        with open("data/routes_sim." + str(df) + ".txt", "w") as f:
+            f.write(disp_routes)
+
+        with open("data/routes_sim_info." + str(df) + ".txt", "w") as f:
+            sim_info = {
+                "demand_factor": df
+            }
+            f.write(json.dumps(sim_info))
 
 
 if __name__ == '__main__':
