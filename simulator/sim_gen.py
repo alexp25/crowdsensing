@@ -95,7 +95,7 @@ def main():
     data = create_data_model()
     compute_geometry.load_config()
     n_iter = input_data["options"]["n_iter"]
-    routes_vect = []
+    
 
     if input_data["options"]["use_range"]:
         # use demand factor range
@@ -113,6 +113,7 @@ def main():
     for i_df, df in enumerate(demand_factor_range):
         data['demands'] = [int(d) * df
                            for d in input_data["demands"]]
+        routes_vect = []
         for i in range(n_iter):
             if i == 0:
                 data['distance_matrix'] = compute_geometry.compute_distance_matrix_wrapper()
