@@ -6,6 +6,7 @@ import requests
 import json
 import urllib
 import yaml
+import config_loader
 
 # https://developers.google.com/maps/documentation/distance-matrix/overview
 
@@ -61,15 +62,7 @@ def main():
     input_file = None
     config = None
 
-    with open('config.yml') as file:
-        config = yaml.load(file, Loader=yaml.FullLoader)
-        input_file = config["input_file"]
-
-    with open(input_file) as file:
-        # The FullLoader parameter handles the conversion from YAML
-        # scalar values to Python the dictionary format
-        input_data = yaml.load(file, Loader=yaml.FullLoader)
-        print(input_data)
+    config, input_data, coords, dm = config_loader.load_config()
 
     # Create the data.
     data = create_data(input_data)

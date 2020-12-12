@@ -131,56 +131,32 @@ def main():
     # plot_avg = False
 
     plot_type = "load"
+    plot_name = "load"
     # plot_type = "points"
+    # plot_name = "points"
     # plot_type = "dist"
+    # plot_name = "dist"
+    
 
-    raw_mode = False
+    raw_mode = True
+
+    alpha = None
+    alpha = 1
+    alpha = 0.9
 
     # Instantiate the data problem.
     data = create_data_model()
 
     routes_vect = []
 
-    if input_data["options"]["use_range"]:
-        # use demand factor range
-        demand_factor_range = input_data["options"]["demand_factor_range"]
-        demand_factor_range = range(
-            demand_factor_range[0], demand_factor_range[1] + 1)
-        print("using demand factor range: ", list(demand_factor_range))
-    else:
-        # use specified demand factor
-        demand_factor_range = [input_data["options"]["demand_factor"]]
-        print("using default demand factor: ", list(demand_factor_range))
-
-    # demand_factor_range = [5, 6, 7]
-
     mat_chart = []
 
-    for df in demand_factor_range:
+    with open("data/routes_sim_vcg_multi.adapted.txt", "r") as f:
+        disp_routes = f.read()
+        disp_routes = json.loads(disp_routes)
+        routes_vect = disp_routes
 
-        with open("data/routes_sim_info." + str(df) + ".txt", "r") as f:
-            info = f.read()
-            info = json.loads(info)
-
-        with open("data/routes_sim." + str(df) + ".txt", "r") as f:
-            disp_routes = f.read()
-            disp_routes = json.loads(disp_routes)
-            routes_vect.append(disp_routes)
-
-    routes_vect_avg = []
-    routes_mat = []
-
-    for scenario in routes_vect:
-        specs = get_average_specs(scenario)
-        routes_vect_avg.append([specs[0], specs[1]])
-        routes_mat.append(specs[2])
-
-    # print(len(routes_vect_avg))
-
-    if raw_mode:
-        routes_vect_avg = [routes_mat[0]]
-    
-    for route in routes_vect_avg:
+    for route in routes_vect:
         vehicles = []
         avg_loads = []
         avg_dist = []
@@ -189,79 +165,76 @@ def main():
         stdev_dist = []
         stdev_points = []
 
-        # print(route)
+        for v in input_data["vehicles"]:
+            found = False
+            found_bid = None
+            for bid in route:
+                if bid["vehicle"] == v["id"]:
+                    found = True
+                    found_bid = bid
+                    break
+                if not found:
+                    found_bid = {
+                        "load": 0,
+                        "points": 0,
+                        "distance": 0
+                    }
 
-        if raw_mode:
-            for v in route:
-                vehicles.append(v["vehicle"][0])
+            avg_loads.append(found_bid["load"] * 1.0)
+            # avg_points.append(found_bid["points"] * 100)
+            avg_points.append(found_bid["points"] * 1.0)
+            avg_dist.append(found_bid["distance"])
 
-            # avg
-            for v in route:
-                avg_loads = v["load"]
-                avg_points = v["points"]
-                avg_dist = v["distance"]
-
-                if plot_type == "load":
-                    mat_chart.append(avg_loads)
-                elif plot_type == "points":
-                    mat_chart.append(avg_points)
-                elif plot_type == "dist":
-                    mat_chart.append(avg_dist)
-                
-                break
-        else:
-            for v in route[0]:
-                vehicles.append(v["vehicle"])
-
-            # avg
-            for v in route[0]:
-                avg_loads.append(v["load"])
-                avg_points.append(v["points"])
-                avg_dist.append(v["distance"])
-
-            # stdev
-            for v in route[1]:
-                stdev_loads.append(v["load"])
-                stdev_points.append(v["points"])
-                stdev_dist.append(v["distance"])
-
-            if plot_type == "load":
-                mat_chart.append(avg_loads if plot_avg else stdev_loads)
-            elif plot_type == "points":
-                mat_chart.append(avg_points if plot_avg else stdev_points)
-            elif plot_type == "dist":
-                mat_chart.append(avg_dist if plot_avg else stdev_dist)
+        # print(avg_loads)
+        if plot_type == "load":
+            mat_chart.append(avg_loads if plot_avg else stdev_loads)
+        elif plot_type == "points":
+            mat_chart.append(avg_points if plot_avg else stdev_points)
+        elif plot_type == "dist":
+            mat_chart.append(avg_dist if plot_avg else stdev_dist)
 
     # print(mat_chart)
     # quit()
     mat_chart_np = np.array(mat_chart)
+
+    mat_chart_np = np.transpose(mat_chart_np)
+
     shape = np.shape(mat_chart_np)
-    print(shape)
 
-    if not raw_mode:
-        
-        for i in range(shape[0]):
-            sum_specs = np.sum(mat_chart_np[i])
-            # print(sum_specs)
-            for j in range(shape[1]):
-                mat_chart_np[i][j] = mat_chart_np[i][j] / sum_specs
-        
-        # print(mat_chart_np)
-        mat_chart_np = np.transpose(mat_chart_np)
-        
-        # quit()
+    print(mat_chart_np)
 
-        mat_chart = mat_chart_np.tolist()
+    if alpha is not None:
+        if alpha == 1:
+            mat = mat_chart_np
+            # average
+            for i in range(shape[0]):
+                avg_row = mat[i,:].mean()
+                print(avg_row)
+                for j in range(shape[1]):
+                    mat[i][j] = avg_row
+            mat_chart_np = mat
+            print(mat_chart_np)
+        else:
+            # filter
+            mat = mat_chart_np
+            print(shape)
+            for i in range(shape[0]):
+                for j in range(1, shape[1]):
+                    mat[i][j] = mat[i][j-1] * alpha + mat[i][j] * (1-alpha)
+            mat_chart_np = mat
+            print(mat_chart_np)
 
-    # print(mat_chart_np)
+    mat_chart = mat_chart_np.tolist()
     # quit()
 
     labels = ["p" + str(i+1) + " (" + str(d) + ")" for i,
               d in enumerate(data['vehicle_capacities'])]
     colors = [None for d in data['vehicle_capacities']]
-    fig = graph.plot_timeseries_multi(mat_chart, demand_factor_range if not raw_mode else range(shape[1]), labels, colors,
-                                      "VRP load balancing", "demand factor", "average " + plot_type if plot_avg else "stdev " + plot_type, False)
-    fig.savefig("figs/results_"+plot_type+ "_" + ("avg" if plot_avg else "stdev") + ("_raw" if raw_mode else "") + ".png", dpi=300)
+
+    fig = graph.plot_timeseries_multi(mat_chart, range(shape[1]), labels, colors,
+                                      "VCG load balancing", "simulation no.", "average " + plot_name if plot_avg else "stdev " + plot_name, False)
+    fig.savefig("figs/results_vcg_"+plot_type + "_" + ("avg" if plot_avg else "stdev") +
+                ("_raw" if raw_mode else "") + ".png", dpi=300)
 
 
 if __name__ == '__main__':

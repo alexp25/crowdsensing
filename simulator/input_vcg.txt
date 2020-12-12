@@ -1,0 +1,51 @@
+ITEMS TO SELL:
+issue_1
+issue_2
+issue_3
+issue_4
+issue_5
+issue_6
+issue_7
+issue_8
+issue_9
+issue_10
+----
+Name: player_1_50
+Bids:
+	225	issue_1
+	438	issue_2
+	573	issue_3
+	759	issue_4
+	793	issue_5
+	449	issue_6
+	694	issue_7
+	931	issue_8
+	623	issue_9
+	293	issue_10
+-----
+Name: player_2_80
+Bids:
+	1129	issue_1
+	619	issue_2
+	388	issue_3
+	838	issue_4
+	198	issue_5
+	1456	issue_6
+	670	issue_7
+	657	issue_8
+	876	issue_9
+	1369	issue_10
+-----
+Name: player_3_100
+Bids:
+	1700	issue_1
+	1238	issue_2
+	983	issue_3
+	1999	issue_4
+	1341	issue_5
+	2267	issue_6
+	333	issue_7
+	521	issue_8
+	351	issue_9
+	1274	issue_10
+-----

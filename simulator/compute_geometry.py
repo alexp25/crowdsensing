@@ -1,32 +1,9 @@
 import yaml
 import csv
 from modules import geometry
+import config_loader
 
-
-def load_config():
-    """load global config"""
-
-    global config, input_spec, coords
-    with open('config.yml') as file:
-        config = yaml.load(file, Loader=yaml.FullLoader)
-        input_file = config["coords_file"]
-
-    with open(config["input_file"]) as file:
-        input_spec = yaml.load(file, Loader=yaml.FullLoader)
-
-    with open(input_file) as file:
-        csvdata = csv.reader(file)
-        coords = []
-        nrows = 0
-        for row in csvdata:
-            r = [float(e) for e in row]
-            ncols = len(r)
-            coords.append(r)
-            nrows += 1
-
-        print("msize: ", nrows, ncols)
-        print(coords)
-
+config, input_spec, coords, dm = config_loader.load_config()
 
 def compute_distance_matrix(coords):
     """build distance matrix from coords"""
@@ -86,7 +63,6 @@ def get_distance_matrix_with_random_depots():
     return d_mat
 
 if __name__ == "__main__":
-    load_config()
     # main()
     geometry.init_random(False)
     d_mat = compute_distance_matrix(coords)

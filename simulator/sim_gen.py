@@ -11,44 +11,17 @@ import json
 
 from modules import plot_routes, geometry
 import compute_geometry
+import config_loader
 
 
 def create_data_model():
     global config, input_data
     """Stores the data for the problem."""
     data = {}
-
-    input_file = None
-    with open('config.yml') as file:
-        config = yaml.load(file, Loader=yaml.FullLoader)
-        input_file = config["input_file"]
-
-    depots = []
-    issues = []
-    vehicles = []
-    with open(input_file) as file:
-        # The FullLoader parameter handles the conversion from YAML
-        # scalar values to Python the dictionary format
-        input_data = yaml.load(file, Loader=yaml.FullLoader)
-        print(config)
-        depots = input_data["depots"]
-        issues = input_data["issues"]
-        vehicles = input_data["vehicles"]
-
-    # config["matrix_file"] = "dm_test.txt"
-
-    with open(config["matrix_file"]) as file:
-        csvdata = csv.reader(file)
-        dm = []
-        nrows = 0
-
-        for row in csvdata:
-            r = [int(e) for e in row]
-            ncols = len(r)
-            dm.append(r)
-            nrows += 1
-
-        print("msize: ", nrows, ncols)
+    config, input_data, coords, dm = config_loader.load_config()
+    depots = input_data["depots"]
+    issues = input_data["issues"]
+    vehicles = input_data["vehicles"]
 
     data['distance_matrix'] = dm
 
@@ -93,7 +66,7 @@ def main():
     """Solve the CVRP problem."""
     # Instantiate the data problem.
     data = create_data_model()
-    compute_geometry.load_config()
+    # compute_geometry.load_config()
     n_iter = input_data["options"]["n_iter"]
     
 

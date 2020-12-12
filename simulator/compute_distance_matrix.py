@@ -4,6 +4,7 @@ import requests
 import json
 import urllib
 import yaml
+import config_loader
 
 # https://developers.google.com/maps/documentation/distance-matrix/overview
 
@@ -91,21 +92,10 @@ def build_distance_matrix(response):
 def main():
     """Entry point of the program"""
 
-    input_file = None
-    config = None
-
-    with open('config.yml') as file:
-        config = yaml.load(file, Loader=yaml.FullLoader)
-        input_file = config["input_file"]
-
-    with open(input_file) as file:
-        # The FullLoader parameter handles the conversion from YAML
-        # scalar values to Python the dictionary format
-        config = yaml.load(file, Loader=yaml.FullLoader)
-        print(config)
+    config, input_spec, coords, dm = config_loader.load_config()
 
     # Create the data.
-    data = create_data(config)
+    data = create_data(input_spec)
     addresses = data['addresses']
     API_key = data['API_key']
     distance_matrix = create_distance_matrix(data)
