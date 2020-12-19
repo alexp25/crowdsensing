@@ -3,6 +3,8 @@ import numpy as np
 from matplotlib import pyplot as plt
 from modules import graph
 
+# https://github.com/google/or-tools/blob/stable/examples/python/cvrptw_plot.py
+
 
 def discrete_cmap(N, base_cmap=None):
     """
@@ -16,6 +18,7 @@ def discrete_cmap(N, base_cmap=None):
     color_list = base(np.linspace(0, 1, N))
     cmap_name = base.name + str(N)
     return base.from_list(cmap_name, color_list, N)
+
 
 def plot_vehicle_routes(veh_route, ax1, customers, starts, ends, annotate):
     """
@@ -37,6 +40,19 @@ def plot_vehicle_routes(veh_route, ax1, customers, starts, ends, annotate):
 
     cmap = discrete_cmap(len(starts) + 2, 'nipy_spectral')
 
+    nv = len(veh_used)
+
+    for i in range(len(customers) - nv):
+        ax1.annotate(
+            'T{veh}'.format(veh=i+1),
+            # lng, lat
+            xy=(customers[i+nv][0], customers[i+nv][1]),
+            xytext=(10, 10),
+            xycoords='data',
+            textcoords='offset points',
+            fontsize=15
+        )
+
     for veh_number in veh_used:
 
         lats, lons = zip(*[(c[1], c[0]) for c in veh_route[veh_number]])
@@ -45,38 +61,22 @@ def plot_vehicle_routes(veh_route, ax1, customers, starts, ends, annotate):
         s_dep = customers[starts[veh_number]]
         s_fin = customers[ends[veh_number]]
 
+        # for
         if annotate:
             ax1.annotate(
-                'v({veh}) S @ {node}'.format(
-                    veh=veh_number, node=starts[veh_number]),
-                    # lng, lat
+                'P{veh}'.format(veh=veh_number+1),
+                # lng, lat
                 xy=(s_dep[0], s_dep[1]),
                 xytext=(10, 10),
                 xycoords='data',
                 textcoords='offset points',
-                arrowprops=dict(
-                    arrowstyle='->',
-                    connectionstyle='angle3,angleA=90,angleB=0',
-                    shrinkA=0.05),
+                fontsize=15
             )
-            ax1.annotate(
-                'v({veh}) F @ {node}'.format(
-                    veh=veh_number, node=ends[veh_number]),
-                    
-                xy=(s_fin[0], s_fin[1]),
-                xytext=(10, -20),
-                xycoords='data',
-                textcoords='offset points',
-                arrowprops=dict(
-                    arrowstyle='->',
-                    connectionstyle='angle3,angleA=-90,angleB=0',
-                    shrinkA=0.05),
-            )
-    
 
-        ax1.plot(lons, lats, 'bs', mfc=cmap(veh_number + 1), markersize=12)
+        ax1.plot(lons, lats, 'bs', mfc=cmap(veh_number + 1), markersize=10)
         # 'b*'
-        ax1.plot([s_dep[0]], [s_dep[1]], 'bo', mfc=cmap(veh_number + 1),  markersize=16)
+        ax1.plot([s_dep[0]], [s_dep[1]], 'bo',
+                 mfc=cmap(veh_number + 1),  markersize=16)
 
         # ax1.plot([s_dep[0]], [s_dep[1]], '.',  markersize=20)
 
@@ -90,11 +90,12 @@ def plot_vehicle_routes(veh_route, ax1, customers, starts, ends, annotate):
             scale=1,
             color=cmap(veh_number + 1)
         )
-            # width=0.01)
+        # width=0.01)
+
 
 def plot_vehicle_routes_wrapper(vehicle_routes, customers_coords, starts, ends):
     # Plotting of the routes in matplotlib.
-    figsize = (10,8)
+    figsize = (10, 8)
 
     fig = plt.figure(figsize=figsize)
 
@@ -107,10 +108,11 @@ def plot_vehicle_routes_wrapper(vehicle_routes, customers_coords, starts, ends):
     ax.plot(clon, clat, 'k.', markersize=5)
     # ax.plot(clon, clat, 'b.', markersize=20)
     # plot the routes as arrows
-    plot_vehicle_routes(vehicle_routes, ax, customers_coords, starts, ends, False)
+    plot_vehicle_routes(vehicle_routes, ax,
+                        customers_coords, starts, ends, True)
 
-    plt.grid(zorder=0) 
-    graph.set_disp("VRP", "longitude", "latitude")
+    plt.grid(zorder=0)
+    graph.set_disp("Crowdsensing model - VRP", "longitude", "latitude")
 
     plt.show()
     return fig
