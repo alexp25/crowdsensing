@@ -19,6 +19,9 @@ def discrete_cmap(N, base_cmap=None):
     cmap_name = base.name + str(N)
     return base.from_list(cmap_name, color_list, N)
 
+def create_discrete_cmap(data):
+    cmap = discrete_cmap(len(data) + 2, 'nipy_spectral')
+    return cmap
 
 def plot_vehicle_routes(veh_route, ax1, customers, starts, ends, annotate):
     """

@@ -15,6 +15,7 @@ import numpy as np
 from modules import graph
 from modules import plot_routes
 import compute_geometry
+from modules import plotter
 
 
 def create_data_model():
@@ -132,8 +133,8 @@ def main():
 
     plot_type = "load"
     plot_name = "load"
-    # plot_type = "points"
-    # plot_name = "points"
+    plot_type = "points"
+    plot_name = "points"
     # plot_type = "dist"
     # plot_name = "dist"
     
@@ -230,6 +231,10 @@ def main():
     labels = ["p" + str(i+1) + " (" + str(d) + ")" for i,
               d in enumerate(data['vehicle_capacities'])]
     colors = [None for d in data['vehicle_capacities']]
+
+    colors = plotter.create_discrete_cmap(data["vehicle_capacities"])
+    colors = [colors(i+1) for i in range(len(data['vehicle_capacities']))]
+    colors = list(reversed(colors))
 
     fig = graph.plot_timeseries_multi(mat_chart, range(shape[1]), labels, colors,
                                       "VCG load balancing", "simulation no.", "average " + plot_name if plot_avg else "stdev " + plot_name, False)

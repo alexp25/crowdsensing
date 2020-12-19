@@ -21,7 +21,7 @@ import numpy as np
 # OPACITY = 0.9
 
 FSIZE_TITLE = 18
-FSIZE_LABEL = 16
+FSIZE_LABEL = 18
 FSIZE_LABEL_S = 16
 FSIZE_LABEL_XS = 14
 OPACITY = 0.9
@@ -56,13 +56,13 @@ def plot_timeseries_multi(timeseries_array, xval, labels, colors, title, xlabel,
         id += 1
         x = xval
         y = ts
-        plt.plot(x, y, label=labels[i], color=colors[i])
+        plt.plot(x, y, label=labels[i], color=colors[i], linewidth=3)
         # plt.plot(x, y)
 
         if separate:
             set_disp(title, xlabel, ylabel)
             plt.grid(zorder=0)
-            plt.legend(loc=legend_loc, fontsize=FSIZE_LABEL_XS)
+            plt.legend(loc=legend_loc, fontsize=FSIZE_LABEL_S)
             plt.show(block=False)
 
     # plt.xticks(rotation=rotation)
@@ -71,7 +71,7 @@ def plot_timeseries_multi(timeseries_array, xval, labels, colors, title, xlabel,
 
     if not separate:
         set_disp(title, xlabel, ylabel)
-        plt.legend(loc=legend_loc, fontsize=FSIZE_LABEL_XS)
+        plt.legend(loc=legend_loc, fontsize=FSIZE_LABEL_S)
         fig = plt.gcf()
         plt.show()
 

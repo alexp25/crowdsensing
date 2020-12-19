@@ -15,6 +15,7 @@ import numpy as np
 from modules import graph
 from modules import plot_routes
 import compute_geometry
+from modules import plotter
 
 
 def create_data_model():
@@ -128,13 +129,16 @@ def main():
 
     # set config
     plot_avg = True
-    # plot_avg = False
+    plot_avg = False
 
     plot_type = "load"
     # plot_type = "points"
     # plot_type = "dist"
 
     raw_mode = False
+    # raw_mode = True
+
+    scaled = False
 
     # Instantiate the data problem.
     data = create_data_model()
@@ -239,12 +243,12 @@ def main():
     print(shape)
 
     if not raw_mode:
-        
-        for i in range(shape[0]):
-            sum_specs = np.sum(mat_chart_np[i])
-            # print(sum_specs)
-            for j in range(shape[1]):
-                mat_chart_np[i][j] = mat_chart_np[i][j] / sum_specs
+        if scaled:
+            for i in range(shape[0]):
+                sum_specs = np.sum(mat_chart_np[i])
+                # print(sum_specs)
+                for j in range(shape[1]):
+                    mat_chart_np[i][j] = mat_chart_np[i][j] / sum_specs
         
         # print(mat_chart_np)
         mat_chart_np = np.transpose(mat_chart_np)
@@ -259,6 +263,11 @@ def main():
     labels = ["p" + str(i+1) + " (" + str(d) + ")" for i,
               d in enumerate(data['vehicle_capacities'])]
     colors = [None for d in data['vehicle_capacities']]
+
+    colors = plotter.create_discrete_cmap(data["vehicle_capacities"])
+    colors = [colors(i+1) for i in range(len(data['vehicle_capacities']))]
+    colors = list(reversed(colors))
+
     fig = graph.plot_timeseries_multi(mat_chart, demand_factor_range if not raw_mode else range(shape[1]), labels, colors,
                                       "VRP load balancing", "demand factor", "average " + plot_type if plot_avg else "stdev " + plot_type, False)
     fig.savefig("figs/results_"+plot_type+ "_" + ("avg" if plot_avg else "stdev") + ("_raw" if raw_mode else "") + ".png", dpi=300)
