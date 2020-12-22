@@ -221,7 +221,7 @@ def main():
             # quit()
 
             # coords[len(vehicles):]
-            fig = plotter.plot_vehicle_routes_wrapper(vehicle_routes,coords,data['starts'],data['ends'])
+            fig = plotter.plot_vehicle_routes_wrapper(vehicle_routes,coords,data['starts'],data['ends'],0.1)
             fig.savefig("figs/routes.png", dpi=300)
 
         

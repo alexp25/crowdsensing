@@ -96,7 +96,7 @@ def plot_vehicle_routes(veh_route, ax1, customers, starts, ends, annotate):
         # width=0.01)
 
 
-def plot_vehicle_routes_wrapper(vehicle_routes, customers_coords, starts, ends):
+def plot_vehicle_routes_wrapper(vehicle_routes, customers_coords, starts, ends, zoom_out):
     # Plotting of the routes in matplotlib.
     figsize = (10, 8)
 
@@ -113,6 +113,15 @@ def plot_vehicle_routes_wrapper(vehicle_routes, customers_coords, starts, ends):
     # plot the routes as arrows
     plot_vehicle_routes(vehicle_routes, ax,
                         customers_coords, starts, ends, True)
+    
+    xlim = ax.get_xlim()
+    ylim = ax.get_ylim()
+    # example of how to zoomout by a factor of 0.1
+    factor = zoom_out
+    new_xlim = (xlim[0] + xlim[1])/2 + np.array((-0.5, 0.5)) * (xlim[1] - xlim[0]) * (1 + factor) 
+    ax.set_xlim(new_xlim)
+    new_ylim = (ylim[0] + ylim[1])/2 + np.array((-0.5, 0.5)) * (ylim[1] - ylim[0]) * (1 + factor) 
+    ax.set_ylim(new_ylim)
 
     plt.grid(zorder=0)
     graph.set_disp("Crowdsensing model - VRP", "longitude", "latitude")
