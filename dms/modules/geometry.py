@@ -6,12 +6,14 @@ from random import gauss
 import random
 import time
 
+
 def init_random(fixed):
     # seed random number generator
     if fixed:
         seed(1)
     else:
         seed(int(time.time()))
+
 
 def get_distance_from_deg(c1, c2):
     # approximate radius of earth in m
@@ -25,13 +27,15 @@ def get_distance_from_deg(c1, c2):
     dlon = lon2 - lon1
     dlat = lat2 - lat1
 
-    a = math.sin(dlat / 2)**2 + math.cos(lat1) * math.cos(lat2) * math.sin(dlon / 2)**2
+    a = math.sin(dlat / 2)**2 + math.cos(lat1) * \
+        math.cos(lat2) * math.sin(dlon / 2)**2
     c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
 
     distance = R * c
 
     # print("Result:", distance)
     return distance
+
 
 def get_center_point(points):
     # https://stackoverflow.com/questions/37885798/how-to-calculate-the-midpoint-of-several-geolocations-in-python
@@ -59,14 +63,28 @@ def get_center_point(points):
 
     return [math.degrees(central_lat), math.degrees(central_lng)]
 
+
 def get_random_point_in_radius(c, min_radius, max_radius):
     min_radius /= 1000
     max_radius /= 1000
     t = 2 * math.pi * random.random()
     u = random.random() + random.random()
-    r = math.radians(max_radius - min_radius) * (2 - u if u > 1 else u) + math.radians(min_radius)
+    r = math.radians(max_radius - min_radius) * \
+        (2 - u if u > 1 else u) + math.radians(min_radius)
 
     deltax = r * math.cos(t)
     deltay = r * math.sin(t)
+
+    return [c[0] + deltax, c[1] + deltay]
+
+
+def get_point_on_heading(c, distance, heading):
+    t = heading * (math.pi/180)
+    r = (distance / 1000) * (math.pi / 360)
+
+    deltax = r * math.cos(t)
+    deltay = r * math.sin(t)
+
+    print(deltax, deltay)
 
     return [c[0] + deltax, c[1] + deltay]
