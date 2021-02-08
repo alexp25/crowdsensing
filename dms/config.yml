@@ -1,0 +1,3 @@
+input_file: "input_simple.yml"
+matrix_file: "dm2.txt"
+coords_file: "coords.txt"

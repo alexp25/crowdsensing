@@ -1,0 +1,83 @@
+
+# each player starts at a different depot
+depots:
+
+  - 'place_id:ChIJh3h6LcQBskARKouim88rXqs'  # cotroceni politehnica residence
+  - 'place_id:ChIJDzLbpu0BskARYiglov_E8ck'  # complex studentesc belvedere
+  - 'place_id:ChIJL3yQieYBskARgsAeWU_CETk'   # asociatia romana a apelor
+
+# there are issues scattered around
+issues:
+
+  - 'place_id:ChIJ_xJzycABskARuPiILNLDCtk'  # CET Laborator
+  - 'place_id:ChIJhQ7yjOoBskARXsb7xZgakoQ'  # complex splaiul independentei
+  - 'place_id:ChIJtQUjlusBskAR0mvpkGSyBEI'  # p5
+  - 'place_id:ChIJHcFN6JYBskARqUc7BKwOn7E'  # aqua park magic place ciurel
+  - 'place_id:ChIJD6O7xuwBskARwSTbsWs9zr0'  # swim club belvedere
+  - 'place_id:ChIJKcoPGrkBskARAXLJ10MmyQo'  # str ariesul mare nr 7
+  - 'place_id:ChIJicMy3egBskARS1nfCYFe22s'  # carrefour/splai
+  - 'place_id:ChIJHSDCku8BskARPIVpqccsO_g'  # art wash auto plevnei
+  - 'place_id:ChIJY9eNlOcBskAR3UILpwqlz9A'  # CET Grozavesti
+  - 'place_id:ChIJoyGQIdsBskARdOu9r9nb8e8'  # camin leu c
+
+
+demands:
+
+  - 1
+  - 1
+  - 1
+
+  - 4
+  - 2
+  - 1
+  - 8
+  - 2
+  - 1
+  - 10
+  - 4
+  - 8
+  - 2
+
+demands_fixed:
+
+  - 1
+  - 1
+  - 1
+
+  - 3
+  - 3
+  - 3
+  - 3
+  - 3
+  - 3
+  - 3
+  - 3
+  - 3
+  - 3
+
+options:
+  demand_factor: 5
+  scan_radius: 500
+  use_range: False
+  demand_factor_range: [1,15]
+  n_iter: 100
+  sort_order_msb: True
+  items: 
+    - item: "T"
+      weight: 0.7
+    - item: "S"
+      weight: 0.2
+    - item: "A"
+      weight: 0.1
+
+vehicles:
+
+  - id: 1
+    capacity: 50
+    fuel: 12000
+  - id: 2
+    capacity: 80
+    fuel: 12000
+  - id: 3
+    capacity: 100
+    fuel: 12000

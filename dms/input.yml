@@ -1,0 +1,30 @@
+
+# each player starts at a different depot
+depots:
+
+  - 'place_id:ChIJh3h6LcQBskARKouim88rXqs'  # cotroceni politehnica residence
+  - 'place_id:ChIJP2938-sBskARcvsSZg_UbB8'  # p22
+  - 'place_id:ChIJDzLbpu0BskARYiglov_E8ck'  # complex studentesc belvedere
+  - 'place_id:ChIJD8pPQ8gBskARTlV71mQRJQo'   # 21 residence politehnica
+  - 'place_id:ChIJL3yQieYBskARgsAeWU_CETk'   # asociatia romana a apelor
+
+# there are issues scattered around
+issues:
+
+  - 'place_id:ChIJ_xJzycABskARuPiILNLDCtk'  # CET Laborator
+  - 'place_id:ChIJhQ7yjOoBskARXsb7xZgakoQ'  # complex splaiul independentei
+  - 'place_id:ChIJ0ZdqSugBskARl_RkBdxmv14'  # str economu cezarescu nr 19
+  - 'place_id:ChIJtQUjlusBskAR0mvpkGSyBEI'  # p5
+  - 'place_id:ChIJHcFN6JYBskARqUc7BKwOn7E'  # aqua park magic place ciurel
+  - 'place_id:ChIJD6O7xuwBskARwSTbsWs9zr0'  # swim club belvedere
+  - 'place_id:ChIJKcoPGrkBskARAXLJ10MmyQo'  # str ariesul mare nr 7
+  - 'place_id:ChIJ25eRt-4BskARhEG4yCiPaak'  # princess
+  - 'place_id:ChIJicMy3egBskARS1nfCYFe22s'  # carrefour/splai
+  - 'place_id:ChIJHSDCku8BskARPIVpqccsO_g'  # art wash auto plevnei
+  
+  - 'place_id:ChIJVb7_HeYBskAR890FCQF9sCU'  # camin a1/splai
+  - 'place_id:ChIJY9eNlOcBskAR3UILpwqlz9A'  # CET Grozavesti
+  - 'place_id:ChIJbfkHcGD_sUARMpF7g1VXLQM'  # metrou eroilor
+  - 'place_id:ChIJoyGQIdsBskARdOu9r9nb8e8'  # camin leu c
+  - 'place_id:ChIJLXat08QBskARHkK0HM0m8BM'   # apaca
+              
