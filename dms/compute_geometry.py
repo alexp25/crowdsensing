@@ -5,6 +5,10 @@ import config_loader
 
 config, input_spec, coords, dm = config_loader.load_config()
 
+def set_coords(new_coords):
+    global coords
+    coords = new_coords
+
 def compute_distance_matrix(coords):
     """build distance matrix from coords"""
 

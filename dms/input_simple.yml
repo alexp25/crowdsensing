@@ -56,11 +56,12 @@ demands_fixed:
   - 3
 
 options:
-  demand_factor: 5
-  scan_radius: 500
+  demand_factor: 1
+  scan_radius: 200
   use_range: False
   demand_factor_range: [1,15]
-  n_iter: 100
+  n_iter: 5000
+  n_epochs: 10
   sort_order_msb: True
   items: 
     - item: "T"

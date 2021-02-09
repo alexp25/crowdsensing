@@ -1,0 +1,5 @@
+scan_radius: 200
+n_iter: 5000
+n_epochs: 10
+demand_factor: 1
+demands: [3]

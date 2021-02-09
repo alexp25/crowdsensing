@@ -1,0 +1,5 @@
+{'T': 3835, 'S': 1101, 'A': 569}
+places found:  367 / 367
+filled demand:  5505 / 5505
+{'T': 0.6966394187102634, 'S': 0.2, 'A': 0.1033605812897366}
+completed in  222  iterations
