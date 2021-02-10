@@ -1,13 +1,14 @@
 
 # each player starts at a different depot
+# there should be the same number of depots as vehicles!
 depots:
 
   - 'place_id:ChIJh3h6LcQBskARKouim88rXqs'  # cotroceni politehnica residence
   - 'place_id:ChIJDzLbpu0BskARYiglov_E8ck'  # complex studentesc belvedere
   - 'place_id:ChIJL3yQieYBskARgsAeWU_CETk'   # asociatia romana a apelor
 
-# there are issues scattered around
-issues:
+# there are places scattered around
+places:
 
   - 'place_id:ChIJ_xJzycABskARuPiILNLDCtk'  # CET Laborator
   - 'place_id:ChIJhQ7yjOoBskARXsb7xZgakoQ'  # complex splaiul independentei
@@ -56,13 +57,17 @@ demands_fixed:
   - 3
 
 options:
-  demand_factor: 1
-  scan_radius: 200
+  fixed_demands: True
+  demand_factor: 5
+  scan_radius: 500
   use_range: False
   demand_factor_range: [1,15]
   n_iter: 5000
   n_epochs: 10
   sort_order_msb: True
+  item_coords:
+    min_radius: 50
+    max_radius: 100
   items: 
     - item: "T"
       weight: 0.7

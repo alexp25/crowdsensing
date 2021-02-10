@@ -12,21 +12,20 @@ from modules import shuffle
 import numpy as np
 import pandas as pd
 
-n_iter = 100
 use_initial_depots = False
 disp_view = False
 use_external_input = False
 use_external_input = True
 
-
 def main():
     # Instantiate the data problem.
     config, input_data, coords, dm = config_loader.load_config()
     depots = input_data["depots"]
-    issues = input_data["issues"]
+    places = input_data["places"]
     vehicles = input_data["vehicles"]
     n_vehicles = len(vehicles)
     options = input_data["options"]
+    # just for initial check
     demands = [int(d) * options["demand_factor"]
                for d in input_data["demands"]]
     vehicle_capacities = [int(v["capacity"]) for v in vehicles]
@@ -75,9 +74,13 @@ def main():
         place_ids = ["place_id:" + pid for pid in place_ids]
         print(place_ids[0])
         print(coords[0])
-        issues = place_ids[n_vehicles:]
-        input_data["demands"] = [5 for p in place_ids]
+        places = place_ids[n_vehicles:]
+       
+        if options["fixed_demands"]:
+            # only use demand factor
+            input_data["demands"] = [1 for p in place_ids]
 
+        place_coords = coords[n_vehicles:]
         compute_geometry.set_coords(coords)
 
     # quit()
@@ -105,10 +108,12 @@ def main():
 
             fill_dict = {}
 
-            for i, issue in enumerate(issues):
-                fill_dict[issue] = {
-                    "place": issue,
+            for i, place in enumerate(places):
+                fill_dict[place] = {
+                    "place": place,
+                    "coords": place_coords[i],
                     "items": [],
+                    "item_coords": [],
                     "found": False,
                     "filled": False,
                     "finder": None,
@@ -142,18 +147,18 @@ def main():
                             if d <= options["scan_radius"]:
                                 if disp_view:
                                     print("found: ", d)
-                                issue = issues[j-n_vehicles]
-                                dict_issue = fill_dict[issue]
+                                place = places[j-n_vehicles]
+                                dict_place = fill_dict[place]
 
                                 # check if place was already found by another agent
-                                if not dict_issue["found"]:
-                                    dict_issue["found"] = True
-                                    dict_issue["finder"] = vehicles[i_vehicle]["id"]
-                                    dict_issue["find_index"] = find_index
-                                    found_places.append(dict_issue)
+                                if not dict_place["found"]:
+                                    dict_place["found"] = True
+                                    dict_place["finder"] = vehicles[i_vehicle]["id"]
+                                    dict_place["find_index"] = find_index
+                                    found_places.append(dict_place)
                                     find_index += 1
                                 else:
-                                    dict_issue["total_revisits"] += 1
+                                    dict_place["total_revisits"] += 1
                                     if disp_view:
                                         print("already found: ", d)
 
@@ -206,28 +211,36 @@ def main():
                         for d in range(fps["demand"]):
                             if not fps["filled"]:
                                 fps["items"].append(slots[slots_index])
+                                fps["item_coords"].append(
+                                    geometry.get_random_point_in_radius(fps["coords"], options["item_coords"]["min_radius"], options["item_coords"]["max_radius"]))
                                 slots_index += 1
                             else:
                                 if disp_view:
                                     print("already filled")
 
-                if check_results(items, issues, demands, fill_dict, i, epoch, False)[0]:
+                if check_results(items, places, demands, fill_dict, i, epoch, False)[0]:
                     break
 
-            _, epoch_results = check_results(
-                items, issues, demands, fill_dict, i, epoch, True)
+            _, epoch_results, map_geometry = check_results(
+                items, places, demands, fill_dict, i, epoch, True)
             epoch_results_vect.append(epoch_results)
 
     output_str = "epoch,places,demand,T,S,A,revisits,iterations\n"
     for epoch_results in epoch_results_vect:
         output_str += epoch_results + "\n"
     print(output_str)
-    with open("dms_results.csv", "w") as f:
+    with open("./data/dms_results.csv", "w") as f:
         f.write(output_str)
+    map_geometry_str = json.dumps(map_geometry, indent=2)
+    with open("./data/dms_map.json", "w") as f:
+        f.write(map_geometry_str)
 
 
-def check_results(items, issues, demands, fill_dict, iteration, epoch, disp):
+def check_results(items, places, demands, fill_dict, iteration, epoch, disp):
     # count end result, number of items by type
+
+    map_geometry = []
+
     items_result_dict = {}
     total_filled = 0
     total_found = 0
@@ -240,12 +253,12 @@ def check_results(items, issues, demands, fill_dict, iteration, epoch, disp):
 
     # check filled places
     for fd in fill_dict:
-        issue = fill_dict[fd]
-        if issue["found"]:
+        place = fill_dict[fd]
+        if place["found"]:
             total_found += 1
-        total_revisits += issue["total_revisits"]
+        total_revisits += place["total_revisits"]
         # check filled items for each place
-        for item in issue["items"]:
+        for item in place["items"]:
             if item in items_result_dict:
                 items_result_dict[item] += 1
                 total_filled += 1
@@ -257,7 +270,7 @@ def check_results(items, issues, demands, fill_dict, iteration, epoch, disp):
         print(items_result_dict)
         output_str += str(epoch) + "," + str(total_found) + \
             "," + str(total_filled) + ","
-        print("places found: ", total_found, "/", len(issues))
+        print("places found: ", total_found, "/", len(places))
         print("filled demand: ", total_filled, "/", sum(demands))
 
     items_ratio_dict = {}
@@ -272,7 +285,19 @@ def check_results(items, issues, demands, fill_dict, iteration, epoch, disp):
         output_str += str(total_revisits) + "," + str(iteration+1)
         print("completed in ", iteration+1, " iterations")
 
-    return total_filled == sum(demands), output_str
+    for fd in fill_dict:
+        place = fill_dict[fd]
+        place_geometry = {
+            "coords": place["coords"],
+            "items": []
+        }
+        for i, item in enumerate(place["items"]):
+            place_geometry["items"].append({
+                "type": item,
+                "coords": place["item_coords"][i]
+            })
+        map_geometry.append(place_geometry)
+    return total_filled == sum(demands), output_str, map_geometry
 
 
 if __name__ == '__main__':

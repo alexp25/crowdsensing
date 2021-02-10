@@ -1,4 +1,5 @@
 import pandas as pd
+import json
 
 
 def read_csv(filename):
@@ -19,5 +20,14 @@ def read_csv2(filename, duplicates_key=None):
     return df
 
 
+def read_json(filename):
+    content = None
+    with open(filename, "r", encoding="utf-8") as f:
+        c = f.read()
+        content = json.loads(c)
+    return content
+
 def write_csv(filename, content):
     content.to_csv(filename, index=False)
+
+
