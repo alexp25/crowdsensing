@@ -17,6 +17,7 @@ disp_view = False
 use_external_input = False
 use_external_input = True
 
+
 def main():
     # Instantiate the data problem.
     config, input_data, coords, dm = config_loader.load_config()
@@ -32,6 +33,10 @@ def main():
     vehicle_fuel = [int(v["fuel"]) for v in vehicles]
 
     items = options["items"]
+
+    if options["fixed_vehicles"]:
+        n_vehicles = options["n_vehicles"]
+        vehicles = [{"id": i+1} for i in range(n_vehicles)]
 
     print(items)
 
@@ -75,7 +80,7 @@ def main():
         print(place_ids[0])
         print(coords[0])
         places = place_ids[n_vehicles:]
-       
+
         if options["fixed_demands"]:
             # only use demand factor
             input_data["demands"] = [1 for p in place_ids]
@@ -125,12 +130,13 @@ def main():
             print(len([k for k in fill_dict]))
 
             find_index = 0
+            compute_geometry.init_random_walk(vehicles, None)
 
             for i in range(n_iter):
                 if i == 0 and use_initial_depots:
                     distance_matrix = compute_geometry.compute_distance_matrix_wrapper()
                 else:
-                    distance_matrix = compute_geometry.get_distance_matrix_with_random_depots()
+                    distance_matrix = compute_geometry.get_distance_matrix_with_random_walk()
 
                 print("epoch: " + str(epoch) + ", iteration: " + str(i) + " with demand factor: " + str(df) + " [" +
                       str(int((i_df * n_iter + i)/(len(demand_factor_range) * n_iter)*100)) + "%]")
@@ -218,14 +224,15 @@ def main():
                                 if disp_view:
                                     print("already filled")
 
-                if check_results(items, places, demands, fill_dict, i, epoch, False)[0]:
+                if check_results(items, places, demands, fill_dict, i, epoch, False, True)[0]:
                     break
 
             _, epoch_results, map_geometry = check_results(
-                items, places, demands, fill_dict, i, epoch, True)
+                items, places, demands, fill_dict, i, epoch, True, False)
             epoch_results_vect.append(epoch_results)
 
-    output_str = "epoch,places,demand,T,S,A,revisits,iterations\n"
+    fig = compute_geometry.plot_random_walk_record()
+    output_str = "epoch,places,demand,T,C,S,A,revisits,iterations\n"
     for epoch_results in epoch_results_vect:
         output_str += epoch_results + "\n"
     print(output_str)
@@ -234,9 +241,10 @@ def main():
     map_geometry_str = json.dumps(map_geometry, indent=2)
     with open("./data/dms_map.json", "w") as f:
         f.write(map_geometry_str)
+    
+    fig.savefig("./data/random_walk.png", dpi=300)
 
-
-def check_results(items, places, demands, fill_dict, iteration, epoch, disp):
+def check_results(items, places, demands, fill_dict, iteration, epoch, disp, info):
     # count end result, number of items by type
 
     map_geometry = []
@@ -270,6 +278,10 @@ def check_results(items, places, demands, fill_dict, iteration, epoch, disp):
         print(items_result_dict)
         output_str += str(epoch) + "," + str(total_found) + \
             "," + str(total_filled) + ","
+        print("places found: ", total_found, "/", len(places))
+        print("filled demand: ", total_filled, "/", sum(demands))
+
+    if info:
         print("places found: ", total_found, "/", len(places))
         print("filled demand: ", total_filled, "/", sum(demands))
 

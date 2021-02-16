@@ -9,7 +9,7 @@ from modules import graph
 from modules import plotter
 from modules import loader
 
-number = 5
+number = 6
 
 results_filename = "./data/dms_results" + \
     ("_" + str(number) if number is not None else "") + ".csv"
@@ -22,7 +22,7 @@ map_photo = "./data/dms_map" + \
 
 results = loader.read_csv2(results_filename)
 print(results)
-series = ['T', 'S', 'M']
+series = ['T', 'C', 'S', 'M']
 xlabels = [str(d+1) for d in results['epoch']]
 colors = [None for d in range(len(series))]
 print(xlabels)
@@ -39,7 +39,7 @@ colors_map = list(reversed(colors_map))
 
 print(colors)
 
-mat_chart = [results["T"], results["S"], results["A"]]
+mat_chart = [results["T"], results["C"], results["S"], results["A"]]
 
 # colors_plot = ['yellow', 'blue', 'orange']
 
@@ -55,6 +55,7 @@ map_geometry = loader.read_json(map_filename)
 place_coords = []
 item_coords = {
     'T': [],
+    'C': [],
     'S': [],
     'A': []
 }

@@ -103,6 +103,33 @@ def plot_vehicle_routes(veh_route, ax1, customers, starts, ends, annotate):
         # width=0.01)
 
 
+def plot_coords_map(coords):
+    clat, clon = zip(*[c for c in coords])
+    plt.plot(clat, clon)
+    plt.show()
+
+
+def plot_coords_map_multi(coords_vect):
+    figsize = (10, 8)
+
+    fig = plt.figure(figsize=figsize)
+
+    graph.set_plot_font()
+
+    ax = fig.add_subplot(111)
+
+    colors = create_discrete_cmap(coords_vect)
+    colors_map = [colors(i+1) for i in range(len(coords_vect))]
+    for i, coords in enumerate(coords_vect):
+        clat, clon = zip(*[c for c in coords])
+        ax.plot(clon, clat, color=colors_map[i])
+
+    plt.grid(zorder=0)
+    graph.set_disp("Random walk", "longitude", "latitude")
+    plt.show()
+    return fig
+
+
 def plot_vehicle_routes_wrapper(vehicle_routes, place_coords, item_coords, colors, starts, ends, zoom_out):
     # Plotting of the routes in matplotlib.
     figsize = (10, 8)
@@ -140,7 +167,7 @@ def plot_vehicle_routes_wrapper(vehicle_routes, place_coords, item_coords, color
     # ax.plot(clon, clat, 'b.', markersize=20)
     # plot the routes as arrows
 
-    ax.legend(["T", "S", "M", "P"])
+    ax.legend(["T", "C", "S", "M", "P"])
 
     if vehicle_routes is not None:
         plot_vehicle_routes(vehicle_routes, ax,

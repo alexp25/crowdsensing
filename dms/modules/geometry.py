@@ -88,3 +88,4 @@ def get_point_on_heading(c, distance, heading):
     print(deltax, deltay)
 
     return [c[0] + deltax, c[1] + deltay]
+
