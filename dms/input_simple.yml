@@ -59,11 +59,11 @@ demands_fixed:
 options:
   fixed_demands: True
   demand_factor: 5
-  scan_radius: 1000
+  scan_radius: 100
   use_range: False
   demand_factor_range: [1,15]
   n_iter: 5000
-  n_epochs: 1
+  n_epochs: 10
   sort_order_msb: True
   item_coords:
     min_radius: 50

@@ -9,7 +9,7 @@ from modules import graph
 from modules import plotter
 from modules import loader
 
-number = 6
+number = 7
 
 results_filename = "./data/dms_results" + \
     ("_" + str(number) if number is not None else "") + ".csv"
