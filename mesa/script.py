@@ -78,21 +78,21 @@ class CityModel(Model):
         self.self_guided_start_window = self_guided_start_window
         self.schedule_time = 0  
 
-        # **Fixed Number of POIs = 8**
+        # Fixed Number of POIs = 8
         np.random.seed(42)
         self.itinerary = [(np.random.randint(1, width - 1), np.random.randint(1, height - 1)) for _ in range(8)]
 
         self.guided_tourists = []
         self.self_guided_tourists = []
 
-        # **Generate Guided Tour Groups Based on Scheduled Start Times**
+        # Generate Guided Tour Groups Based on Scheduled Start Times
         for start_time in guided_start_times:
             for i in range(num_tourists // len(guided_start_times)):  
                 agent = TouristAgent(len(self.guided_tourists), self, guided=True, start_time=start_time, wait_time_range=guided_wait_time)
                 self.grid.place_agent(agent, self.itinerary[0])
                 self.guided_tourists.append(agent)
 
-        # **Generate Self-Guided Tourists Randomly Throughout the Day**
+        # Generate Self-Guided Tourists Randomly Throughout the Day
         for i in range(num_tourists // 2):
             # start_time = np.random.randint(0, total_time_steps, size=1)[0]  
             start_time = np.random.randint(*self_guided_start_window)
@@ -140,7 +140,7 @@ class CityModel(Model):
         self.datacollector.collect(self)
 
 
-# **PARAMETERS**  
+# Simulation parameters
 
 # Define scale: 1 grid unit = 10 meters
 width = 200  # 2000 meters wide
@@ -150,7 +150,7 @@ num_tourists = 20
 guided_ratio = 0.5  
 time_steps = 840  # 8 AM - 10 PM
 
-# **Fixed Values**
+# Fixed Values
 num_pois = 8
 guided_start_times = [120, 360]  # 10 AM, 2 PM 
 self_guided_start_window = (0, 720)  # Self-guided tourists start between 8 AM and 8 PM
@@ -167,7 +167,7 @@ for i in range(time_steps):
 # Collect Data
 data = model.datacollector.get_model_vars_dataframe()
 
-# **Plots**
+# Plots
 plt.figure(figsize=(12, 6))
 
 plt.subplot(1, 2, 1)
