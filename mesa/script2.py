@@ -253,7 +253,12 @@ def run_once():
     plt.show()
     
     
-def run_simulation(num_tourists, guided_group_size, self_guided_group_size):
+def run_simulation(
+    num_tourists,
+    guided_group_size,
+    self_guided_group_size,
+    guided_wait_time,
+    self_guided_wait_time):
     """Runs the simulation with given parameters and returns average congestion values."""
     
     width = 100  # x10 meters wide
@@ -268,7 +273,7 @@ def run_simulation(num_tourists, guided_group_size, self_guided_group_size):
         width=width, height=height, num_tourists=num_tourists, guided_ratio=0.5,
         total_time_steps=time_steps, guided_start_times=[120, 360],
         self_guided_start_window=(0, 720), self_guided_start_interval=10,
-        guided_wait_time=(10, 15), self_guided_wait_time=(5, 10),
+        guided_wait_time=guided_wait_time, self_guided_wait_time=self_guided_wait_time,
         guided_group_size=guided_group_size, self_guided_group_size=self_guided_group_size,
         itinerary=itinerary
     )
@@ -288,28 +293,51 @@ def run_simulation(num_tourists, guided_group_size, self_guided_group_size):
 def run_multi_eval():
     # Parameter ranges for experiments
     group_sizes = list(range(5, 51, 5))  # Test guided group sizes from 5 to 50
+    num_tourists_range = list(range(200, 2001, 200))
     num_tourists = 1000  # Fix number of tourists
 
     # Store results
     total_congestion_results = []
     guided_congestion_results = []
     self_guided_congestion_results = []
-
-    for size in group_sizes:
-        print("running size: " + str(size))
-        avg_total, avg_guided, avg_self_guided = run_simulation(num_tourists, size, 2)  # Keep self-guided groups small
+    
+    for num_tourists in num_tourists_range:
+        print("running num tourists: " + str(num_tourists))
+        avg_total, avg_guided, avg_self_guided = run_simulation(num_tourists, 25, 2, (10, 15), (5, 10))  # Keep self-guided groups small
         total_congestion_results.append(avg_total)
         guided_congestion_results.append(avg_guided)
         self_guided_congestion_results.append(avg_self_guided)
+    plot_x = num_tourists_range
+    plot_x_label = "Number of Tourists"
+    
+
+    # for size in group_sizes:
+    #     print("running size: " + str(size))
+    #     avg_total, avg_guided, avg_self_guided = run_simulation(num_tourists, size, size, (10, 15), (5, 10))  # Keep self-guided groups small
+    #     total_congestion_results.append(avg_total)
+    #     guided_congestion_results.append(avg_guided)
+    #     self_guided_congestion_results.append(avg_self_guided)
+    # plot_x = group_sizes
+    # plot_x_label = "Group Size"
+    
+    # waiting_times = list(range(5, 51, 5))
+    # for wtime in waiting_times:
+    #     print("running wtime: " + str(wtime))
+    #     avg_total, avg_guided, avg_self_guided = run_simulation(num_tourists, 25, 2, (wtime, wtime+1), (wtime, wtime+1))  # Keep self-guided groups small
+    #     total_congestion_results.append(avg_total)
+    #     guided_congestion_results.append(avg_guided)
+    #     self_guided_congestion_results.append(avg_self_guided)
+    # plot_x = waiting_times        
+    # plot_x_label = "Waiting time at POIs"
 
     # Plot results
     fig = plt.figure(figsize=(10, 5))
-    plt.plot(group_sizes, guided_congestion_results, marker='o', label="Guided Tour Congestion")
-    plt.plot(group_sizes, self_guided_congestion_results, marker='s', label="Self-Guided Tour Congestion")
+    plt.plot(plot_x, guided_congestion_results, marker='o', label="Guided Tour Congestion")
+    plt.plot(plot_x, self_guided_congestion_results, marker='s', label="Self-Guided Tour Congestion")
     # plt.plot(group_sizes, total_congestion_results, marker='x', label="Overall Tour Congestion")
-    plt.xlabel("Guided Group Size")
+    plt.xlabel(plot_x_label)
     plt.ylabel("Average Congestion")
-    plt.title("Effect of Guided Group Size on Congestion")
+    plt.title("Effect of " + plot_x_label + " on Congestion")
     plt.legend()
     plt.grid(True)
     fig.savefig('multi_eval.png', dpi=fig.dpi)
