@@ -185,6 +185,73 @@ class CityModel(Model):
         self.datacollector.collect(self)
 
 
+def plot_state_at_time(model, title="Tourist Distribution at Time Step", timestep=None):
+    """Visualizes the full simulation state including POIs, labeled paths, and current group positions."""
+    fig, ax = plt.subplots(figsize=(8, 8))
+
+    # Plot POIs and annotate them
+    for idx, (x, y) in enumerate(model.itinerary):
+        ax.scatter(x, y, s=120, c='black', marker='X')
+        ax.text(x + 1, y + 1, f'POI {idx + 1}', fontsize=9, color='black')
+
+    # Draw arrows between POIs to show direction
+    for i in range(len(model.itinerary) - 1):
+        x1, y1 = model.itinerary[i]
+        x2, y2 = model.itinerary[i + 1]
+        ax.annotate("",
+                    xy=(x2, y2),
+                    xytext=(x1, y1),
+                    arrowprops=dict(arrowstyle="->", color='gray', lw=1.5))
+
+    # Helper function to draw a tourist group
+    def draw_group(x, y, group, color, label):
+        ax.scatter(x, y, s=group.group_size * 20, c=color, alpha=0.6, label=label)
+
+    # Prevent duplicate legend labels
+    labels_drawn = {"Guided": False, "Self-Guided": False}
+
+    # Guided tourists
+    for group in model.guided_groups:
+        if model.schedule_time >= group.start_time and not group.completed:
+            if group.traveling and group.current_step < len(group.path):
+                p1 = group.path[group.current_step - 1]
+                p2 = group.path[group.current_step]
+                ratio = 1 - group.travel_time / calculate_travel_time(p1, p2)
+                x = p1[0] + (p2[0] - p1[0]) * ratio
+                y = p1[1] + (p2[1] - p1[1]) * ratio
+            else:
+                x, y = group.path[group.current_step]
+            draw_group(x, y, group, 'red', 'Guided Group' if not labels_drawn["Guided"] else "")
+            labels_drawn["Guided"] = True
+
+    # Self-guided tourists
+    for group in model.self_guided_groups:
+        if model.schedule_time >= group.start_time and not group.completed:
+            if group.traveling and group.current_step < len(group.path):
+                p1 = group.path[group.current_step - 1]
+                p2 = group.path[group.current_step]
+                ratio = 1 - group.travel_time / calculate_travel_time(p1, p2)
+                x = p1[0] + (p2[0] - p1[0]) * ratio
+                y = p1[1] + (p2[1] - p1[1]) * ratio
+            else:
+                x, y = group.path[group.current_step]
+            draw_group(x, y, group, 'blue', 'Self-Guided Group' if not labels_drawn["Self-Guided"] else "")
+            labels_drawn["Self-Guided"] = True
+
+    # Dummy scatter to force POI into legend
+    ax.scatter([], [], s=100, c='black', marker='X', label='POI')
+    ax.set_title(f"{title} (Minute {model.schedule_time})" if timestep is None else f"{title} (Minute {timestep})")
+    ax.set_xlim(0, model.grid.width)
+    ax.set_ylim(0, model.grid.height)
+    ax.set_xlabel("Grid X (10m units)")
+    ax.set_ylabel("Grid Y (10m units)")
+    ax.grid(True)
+    ax.legend(loc="upper right")
+    plt.tight_layout()
+    fig.savefig(f'state_t{model.schedule_time}.png', dpi=fig.dpi)
+    plt.show()
+
+
 def run_once():
     # Simulation parameters
 
@@ -214,7 +281,14 @@ def run_once():
     # Run Simulation
     model = CityModel(width, height, num_tourists, guided_ratio, time_steps, guided_start_times, self_guided_start_window, self_guided_start_interval, guided_wait_time, self_guided_wait_time, guided_group_size, self_guided_group_size, itinerary)
 
-    for i in range(time_steps):
+    time_steps_2 = int(time_steps/2)
+    
+    for i in range(time_steps_2):
+        model.step()        
+        
+    plot_state_at_time(model)
+    
+    for i in range(time_steps_2):
         model.step()
 
     # Collect Data
@@ -344,5 +418,5 @@ def run_multi_eval():
     plt.show()
 
 
-# run_once()
-run_multi_eval()
+run_once()
+# run_multi_eval()
