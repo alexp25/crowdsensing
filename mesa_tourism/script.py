@@ -171,8 +171,9 @@ data = model.datacollector.get_model_vars_dataframe()
 plt.figure(figsize=(12, 6))
 
 plt.subplot(1, 2, 1)
-plt.plot(data["Guided Congestion"], label="Guided Tourists")
-plt.plot(data["Self-Guided Congestion"], label="Self-Guided Tourists")
+    
+plt.plot(data["Guided Congestion"], c="orange", label="Guided Tourists")
+plt.plot(data["Self-Guided Congestion"], c="blue", label="Self-Guided Tourists")
 plt.xlabel("Time Step (Minutes)")
 plt.ylabel("Tourists at POIs")
 plt.title("Guided vs Self-Guided Congestion Over the Day")

@@ -221,7 +221,7 @@ def plot_state_at_time(model, title="Tourist Distribution at Time Step", timeste
                 y = p1[1] + (p2[1] - p1[1]) * ratio
             else:
                 x, y = group.path[group.current_step]
-            draw_group(x, y, group, 'red', 'Guided Group' if not labels_drawn["Guided"] else "")
+            draw_group(x, y, group, 'orange', 'Guided Group' if not labels_drawn["Guided"] else "")
             labels_drawn["Guided"] = True
 
     # Self-guided tourists
@@ -307,16 +307,16 @@ def run_once():
     fig = plt.figure(figsize=(12, 6))
 
     plt.subplot(1, 2, 1)
-    plt.plot(data["Guided Congestion"], label="Guided Tourists")
-    plt.plot(data["Self-Guided Congestion"], label="Self-Guided Tourists")
+    plt.plot(data["Guided Congestion"], c="orange", label="Guided Tourists")
+    plt.plot(data["Self-Guided Congestion"], c="blue", label="Self-Guided Tourists")
     plt.xlabel("Time Step (Minutes)")
     plt.ylabel("Tourists at POIs")
     plt.title("Guided vs Self-Guided Congestion Over the Day")
     plt.legend()
 
     plt.subplot(1, 2, 2)
-    plt.plot(data["Guided Completion Rate"], label="Guided Tourists")
-    plt.plot(data["Self-Guided Completion Rate"], label="Self-Guided Tourists")
+    plt.plot(data["Guided Completion Rate"], c="orange", label="Guided Tourists")
+    plt.plot(data["Self-Guided Completion Rate"], c="blue", label="Self-Guided Tourists")
     plt.xlabel("Time Step (Minutes)")
     plt.ylabel("Completion Rate (%)")
     plt.title("Guided vs Self-Guided Tour Completion Rate")
@@ -406,8 +406,8 @@ def run_multi_eval():
 
     # Plot results
     fig = plt.figure(figsize=(10, 5))
-    plt.plot(plot_x, guided_congestion_results, marker='o', label="Guided Tour Congestion")
-    plt.plot(plot_x, self_guided_congestion_results, marker='s', label="Self-Guided Tour Congestion")
+    plt.plot(plot_x, guided_congestion_results, marker='o', c="orange", label="Guided Tour Congestion")
+    plt.plot(plot_x, self_guided_congestion_results, marker='s', c="blue", label="Self-Guided Tour Congestion")
     # plt.plot(group_sizes, total_congestion_results, marker='x', label="Overall Tour Congestion")
     plt.xlabel(plot_x_label)
     plt.ylabel("Average Congestion")
