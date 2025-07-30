@@ -114,7 +114,7 @@ def run_simulation(
     return avg_total_congestion, avg_guided_congestion, avg_self_guided_congestion
     
     
-def run_multi_eval():
+def run_multi_eval(mode):
     # Parameter ranges for experiments
     group_sizes = list(range(5, 51, 5))  # Test guided group sizes from 5 to 50
     num_tourists_range = list(range(200, 2001, 200))
@@ -124,35 +124,41 @@ def run_multi_eval():
     total_congestion_results = []
     guided_congestion_results = []
     self_guided_congestion_results = []
+    label_ext = ""
     
-    for num_tourists in num_tourists_range:
-        print("running num tourists: " + str(num_tourists))
-        avg_total, avg_guided, avg_self_guided = run_simulation(num_tourists, 25, 2, (10, 15), (5, 10))  # Keep self-guided groups small
-        total_congestion_results.append(avg_total)
-        guided_congestion_results.append(avg_guided)
-        self_guided_congestion_results.append(avg_self_guided)
-    plot_x = num_tourists_range
-    plot_x_label = "Number of Tourists"
+    if mode == 1:
+        for num_tourists in num_tourists_range:
+            print("running num tourists: " + str(num_tourists))
+            avg_total, avg_guided, avg_self_guided = run_simulation(num_tourists, 25, 2, (10, 15), (5, 10))  # Keep self-guided groups small
+            total_congestion_results.append(avg_total)
+            guided_congestion_results.append(avg_guided)
+            self_guided_congestion_results.append(avg_self_guided)
+        plot_x = num_tourists_range
+        plot_x_label = "Number of Tourists"
+        label_ext = "num_tourists"
     
-
-    # for size in group_sizes:
-    #     print("running size: " + str(size))
-    #     avg_total, avg_guided, avg_self_guided = run_simulation(num_tourists, size, size, (10, 15), (5, 10))  # Keep self-guided groups small
-    #     total_congestion_results.append(avg_total)
-    #     guided_congestion_results.append(avg_guided)
-    #     self_guided_congestion_results.append(avg_self_guided)
-    # plot_x = group_sizes
-    # plot_x_label = "Group Size"
+    elif mode == 2:
+        for size in group_sizes:
+            print("running size: " + str(size))
+            avg_total, avg_guided, avg_self_guided = run_simulation(num_tourists, size, size, (10, 15), (5, 10))  # Keep self-guided groups small
+            total_congestion_results.append(avg_total)
+            guided_congestion_results.append(avg_guided)
+            self_guided_congestion_results.append(avg_self_guided)
+        plot_x = group_sizes
+        plot_x_label = "Group Size"
+        label_ext = "group_size"
     
-    # waiting_times = list(range(5, 51, 5))
-    # for wtime in waiting_times:
-    #     print("running wtime: " + str(wtime))
-    #     avg_total, avg_guided, avg_self_guided = run_simulation(num_tourists, 25, 2, (wtime, wtime+1), (wtime, wtime+1))  # Keep self-guided groups small
-    #     total_congestion_results.append(avg_total)
-    #     guided_congestion_results.append(avg_guided)
-    #     self_guided_congestion_results.append(avg_self_guided)
-    # plot_x = waiting_times        
-    # plot_x_label = "Waiting time at POIs"
+    elif mode == 3:
+        waiting_times = list(range(5, 51, 5))
+        for wtime in waiting_times:
+            print("running wtime: " + str(wtime))
+            avg_total, avg_guided, avg_self_guided = run_simulation(num_tourists, 25, 2, (wtime, wtime+1), (wtime, wtime+1))  # Keep self-guided groups small
+            total_congestion_results.append(avg_total)
+            guided_congestion_results.append(avg_guided)
+            self_guided_congestion_results.append(avg_self_guided)
+        plot_x = waiting_times        
+        plot_x_label = "Waiting time at POIs"
+        label_ext = "waiting_time"
 
     # Plot results
     fig = plt.figure(figsize=(10, 5))
@@ -164,9 +170,11 @@ def run_multi_eval():
     plt.title("Effect of " + plot_x_label + " on Congestion")
     plt.legend()
     plt.grid(True)
-    fig.savefig('output/multi_eval.png', dpi=fig.dpi)
+    fig.savefig('output/multi_eval_' + label_ext + '.png', dpi=fig.dpi)
     plt.show()
 
 
-run_once()
-# run_multi_eval()
+# run_once()
+run_multi_eval(1)
+# run_multi_eval(2)
+# run_multi_eval(3)
