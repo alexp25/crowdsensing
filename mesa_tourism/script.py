@@ -1,7 +1,10 @@
 import matplotlib.pyplot as plt
 import numpy as np
 from model import CityModel, plot_state_at_time
-
+from model_ext import CityModelExt
+from router import Router
+from router import get_router
+    
 import matplotlib.pyplot as plt
 from matplotlib.colors import LinearSegmentedColormap, Normalize
 from matplotlib.patches import Patch
@@ -39,7 +42,7 @@ def run_once():
 
     num_tourists = 1000
     guided_ratio = 0.5  
-    time_steps = 840  # 8 AM - 10 PM
+    time_steps = 1.0 * 840  # 8 AM - 10 PM
 
     # Fixed Values
     num_pois = 8
@@ -57,8 +60,33 @@ def run_once():
     itinerary = [(np.random.randint(1, width - 1), np.random.randint(1, height - 1)) for _ in range(num_pois)]
             
     # Run Simulation
-    model = CityModel(width, height, num_tourists, guided_ratio, time_steps, guided_start_times, self_guided_start_window, self_guided_start_interval, guided_wait_time, self_guided_wait_time, guided_group_size, self_guided_group_size, itinerary)
+    # model = CityModel(width, height, num_tourists, guided_ratio, time_steps, guided_start_times, self_guided_start_window, self_guided_start_interval, guided_wait_time, self_guided_wait_time, guided_group_size, self_guided_group_size, itinerary)
 
+    if not USE_MODEL_EXT: 
+        model = CityModel(
+            width=width, height=height, num_tourists=num_tourists, guided_ratio=guided_ratio,
+            total_time_steps=time_steps, guided_start_times=guided_start_times,
+            self_guided_start_window=self_guided_start_window, self_guided_start_interval=self_guided_start_interval,
+            guided_wait_time=guided_wait_time, self_guided_wait_time=self_guided_wait_time,
+            guided_group_size=guided_group_size, self_guided_group_size=self_guided_group_size,
+            itinerary=itinerary
+        )
+    else:        
+        # Build the router once
+        router = get_router("data/walk_oldtown.graphml", center_latlon=(41.3826, 2.1769), dist_m=1000)
+   
+        model = CityModelExt(
+            width=width, height=height, num_tourists=num_tourists, guided_ratio=0.5,
+            total_time_steps=time_steps, guided_start_times=[120, 360],
+            self_guided_start_window=(0, 720), self_guided_start_interval=10,
+            guided_wait_time=guided_wait_time, self_guided_wait_time=self_guided_wait_time,
+            guided_group_size=guided_group_size, self_guided_group_size=self_guided_group_size,
+            itinerary=[],               # not used for routing anymore
+            router = router,
+            poi_capacity_range=(25, 60),
+            clustered=False, num_clusters=2, cluster_radius=8
+        )
+        
     time_steps_2 = int(time_steps/2)
     
     for i in range(time_steps_2):
@@ -76,10 +104,12 @@ def run_once():
     avg_total_congestion = data["Total Congestion"].mean()
     avg_guided_congestion = data["Guided Congestion"].mean()
     avg_self_guided_congestion = data["Self-Guided Congestion"].mean()
+    avg_total_queued = data["Total Queued"].mean()
 
     print(f"Average Total Congestion: {avg_total_congestion:.2f}")
     print(f"Average Guided Congestion: {avg_guided_congestion:.2f}")
     print(f"Average Self-Guided Congestion: {avg_self_guided_congestion:.2f}")   
+    print(f"Average Queued: {avg_total_queued:.2f}")   
         
     # Plots
     fig = plt.figure(figsize=(12, 6))
@@ -87,6 +117,7 @@ def run_once():
     plt.subplot(1, 2, 1)
     plt.plot(data["Guided Congestion"], c="orange", label="Guided Tourists")
     plt.plot(data["Self-Guided Congestion"], c="blue", label="Self-Guided Tourists")
+    plt.plot(data["Total Queued"], c="green", label="Tourists in Queue")
     plt.xlabel("Time Step (Minutes)")
     plt.ylabel("Tourists at POIs")
     plt.title("Guided vs Self-Guided Congestion Over the Day")
@@ -94,7 +125,7 @@ def run_once():
 
     plt.subplot(1, 2, 2)
     plt.plot(data["Guided Completion Rate"], c="orange", label="Guided Tourists")
-    plt.plot(data["Self-Guided Completion Rate"], c="blue", label="Self-Guided Tourists")
+    plt.plot(data["Self-Guided Completion Rate"], c="blue", label="Self-Guided Tourists")  
     plt.xlabel("Time Step (Minutes)")
     plt.ylabel("Completion Rate (%)")
     plt.title("Guided vs Self-Guided Tour Completion Rate")
@@ -113,6 +144,8 @@ def run_simulation(
     self_guided_wait_time):
     """Runs the simulation with given parameters and returns average congestion values."""
     
+    global USE_MODEL_EXT
+    
     width = 100  # x10 meters wide
     height = 100  # x10 meters high
     num_pois = 8
@@ -120,15 +153,29 @@ def run_simulation(
     
     np.random.seed(42)
     itinerary = [(np.random.randint(1, width - 1), np.random.randint(1, height - 1)) for _ in range(num_pois)]
-    
-    model = CityModel(
-        width=width, height=height, num_tourists=num_tourists, guided_ratio=0.5,
-        total_time_steps=time_steps, guided_start_times=[120, 360],
-        self_guided_start_window=(0, 720), self_guided_start_interval=10,
-        guided_wait_time=guided_wait_time, self_guided_wait_time=self_guided_wait_time,
-        guided_group_size=guided_group_size, self_guided_group_size=self_guided_group_size,
-        itinerary=itinerary
-    )
+   
+    if not USE_MODEL_EXT: 
+        model = CityModel(
+            width=width, height=height, num_tourists=num_tourists, guided_ratio=0.5,
+            total_time_steps=time_steps, guided_start_times=[120, 360],
+            self_guided_start_window=(0, 720), self_guided_start_interval=10,
+            guided_wait_time=guided_wait_time, self_guided_wait_time=self_guided_wait_time,
+            guided_group_size=guided_group_size, self_guided_group_size=self_guided_group_size,
+            itinerary=itinerary
+        )
+    else:       
+        router = get_router("data/walk_oldtown.graphml", center_latlon=(41.3826, 2.1769), dist_m=1000)
+   
+        model = CityModelExt(
+            width=width, height=height, num_tourists=num_tourists, guided_ratio=0.5,
+            total_time_steps=time_steps, guided_start_times=[120, 360],
+            self_guided_start_window=(0, 720), self_guided_start_interval=10,
+            guided_wait_time=guided_wait_time, self_guided_wait_time=self_guided_wait_time,
+            guided_group_size=guided_group_size, self_guided_group_size=self_guided_group_size,
+            itinerary=[],               # not used for routing anymore
+            router = router,
+            poi_capacity_range=(2500, 6000)
+        )
 
     for _ in range(time_steps):  # Simulate a full day
         model.step()
@@ -324,10 +371,11 @@ def run_heatmap_congestion_vs_load_and_distribution(
     }
 
 
+USE_MODEL_EXT = True
 
-# run_once()
+run_once()
 # run_multi_eval(1)
 # run_multi_eval(2)
 # run_multi_eval(3)
 # run_heatmap()
-run_heatmap_congestion_vs_load_and_distribution()
+# run_heatmap_congestion_vs_load_and_distribution()
