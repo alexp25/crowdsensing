@@ -2,6 +2,34 @@ import matplotlib.pyplot as plt
 import numpy as np
 from model import CityModel, plot_state_at_time
 
+import matplotlib.pyplot as plt
+from matplotlib.colors import LinearSegmentedColormap, Normalize
+from matplotlib.patches import Patch
+from matplotlib.cm import ScalarMappable
+from matplotlib.colors import Normalize, LinearSegmentedColormap
+
+N_STEP = 50
+belief_cmap = LinearSegmentedColormap.from_list(
+    "belief_map", [(0, 0.5, 1.0), (1.0, 0.5, 0.2)], N=256
+)
+belief_norm = Normalize(vmin=0.5, vmax=0.9)
+
+
+def get_heatmap_style():
+    # Define custom colormap
+    colors = [
+        (0.5, 0.5, 1),  # Blue
+        (0.5, 0.5, 1),  # Still blue at 0.5
+        (1, 0.5, 0.2)   # Red at 1.0
+    ]
+    positions = [0.0, 0.5, 1.0]  # Map full range from 0 to 1
+    cmap = LinearSegmentedColormap.from_list("sharp_halfblue_to_red", list(zip(positions, colors)))
+
+    # Normalize full range
+    norm = Normalize(vmin=0.5, vmax=0.9)
+    return cmap, norm
+
+
 def run_once():
     # Simulation parameters
 
@@ -174,7 +202,132 @@ def run_multi_eval(mode):
     plt.show()
 
 
+
+def run_heatmap_congestion_vs_load_and_distribution(
+    num_tourists_values = list(range(200, 2001, 200)),  # Y-axis
+    guided_ratios = np.linspace(0.0, 1.0, 11),          # X-axis (0%..100% guided)
+    guided_group_size: int = 25,
+    self_guided_group_size: int = 2,
+    guided_wait_time=(10, 15),
+    self_guided_wait_time=(5, 10),
+    width: int = 100,
+    height: int = 100,
+    num_pois: int = 8,
+    time_steps: int = 840,                  # full day, 1-minute steps
+    guided_start_times=[120, 360],          # 10:00, 14:00
+    self_guided_start_window=(0, 720),      # 08:00–20:00
+    self_guided_start_interval=10,
+    seed: int = 42,
+    out_prefix: str = "sa_congestion_load_vs_distribution"
+):
+    """
+    Sensitivity analysis heatmaps:
+      X: guided_ratio (0..1)
+      Y: total number of tourists
+    Cells: average congestion metric over the day.
+
+    Saves three figures:
+      1) total congestion
+      2) guided congestion
+      3) self-guided congestion
+
+    Returns dict of matrices for further analysis.
+    """
+    X = np.array(guided_ratios)                 # columns
+    Y = np.array(num_tourists_values)           # rows
+    nx, ny = len(X), len(Y)
+
+    total_cong = np.zeros((ny, nx))
+    guided_cong = np.zeros((ny, nx))
+    self_cong   = np.zeros((ny, nx))
+
+    # Fixed itinerary across the entire grid for fairness
+    rng = np.random.RandomState(seed)
+    itinerary = [(rng.randint(1, width - 1), rng.randint(1, height - 1)) for _ in range(num_pois)]
+
+    for iy, n_tour in enumerate(Y):
+        for ix, gratio in enumerate(X):
+            model = CityModel(
+                width=width, height=height,
+                num_tourists=int(n_tour),
+                guided_ratio=float(gratio),
+                total_time_steps=time_steps,
+                guided_start_times=guided_start_times,
+                self_guided_start_window=self_guided_start_window,
+                self_guided_start_interval=self_guided_start_interval,
+                guided_wait_time=guided_wait_time,
+                self_guided_wait_time=self_guided_wait_time,
+                guided_group_size=int(guided_group_size),
+                self_guided_group_size=int(self_guided_group_size),
+                itinerary=itinerary
+            )
+            for _ in range(time_steps):
+                model.step()
+
+            df = model.datacollector.get_model_vars_dataframe()
+            total_cong[iy, ix]  = df["Total Congestion"].mean()
+            guided_cong[iy, ix] = df["Guided Congestion"].mean()
+            self_cong[iy, ix]   = df["Self-Guided Congestion"].mean()
+
+    # Plot helper
+    def _plot(matrix, title, cbar_label, fname):
+        cmap, _ = get_heatmap_style()
+        vmin, vmax = np.nanmin(matrix), np.nanmax(matrix)
+        norm = Normalize(vmin=vmin, vmax=vmax)
+
+        plt.figure(figsize=(10, 7))
+        plt.imshow(
+            matrix,
+            origin="lower",
+            cmap=cmap,
+            norm=norm,
+            extent=[X.min(), X.max(), Y.min(), Y.max()],
+            aspect="auto"
+        )
+        cbar = plt.colorbar()
+        cbar.set_label(cbar_label, fontsize=14)
+        cbar.ax.tick_params(labelsize=12)
+        # cbar.ax.set_title(f"{title}", fontsize=14)    
+
+        plt.tick_params(labelsize=14)
+        # Axis labels & ticks
+        plt.xlabel("Guided Ratio (% of tourists)", fontsize=14)
+        xticks = np.linspace(X.min(), X.max(), 6)
+        plt.xticks(xticks, [f"{int(x*100)}%" for x in xticks])
+
+        plt.ylabel("Number of Tourists", fontsize=14)
+        # choose nice ticks for Y (multiples of 200 by default)
+        ystep = max(1, (Y.max() - Y.min()) // 8 // 100) * 100
+        yvals = np.arange(Y.min(), Y.max() + ystep, ystep)
+        plt.yticks(yvals)
+
+        plt.title(title, fontsize=16)
+        plt.tight_layout()
+        plt.savefig("output/" + fname, dpi=300)
+
+        print(f"Saved: {fname}")
+        plt.close()
+
+    _plot(
+        total_cong,
+        "Average Congestion Sensitivity Analysis",
+        "Average Total Congestion (tourists at POIs)",
+        f"{out_prefix}_total.png"
+    )
+
+    return {
+        "X_guided_ratios": X,
+        "Y_num_tourists": Y,
+        "total_congestion": total_cong,
+        "guided_congestion": guided_cong,
+        "self_congestion": self_cong
+    }
+
+
+
 # run_once()
-run_multi_eval(1)
+# run_multi_eval(1)
 # run_multi_eval(2)
 # run_multi_eval(3)
+# run_heatmap()
+run_heatmap_congestion_vs_load_and_distribution()
