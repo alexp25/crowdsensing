@@ -232,7 +232,7 @@ def run_multi_eval(mode):
             guided_congestion_results.append(avg_guided)
             self_guided_congestion_results.append(avg_self_guided)
         plot_x = waiting_times        
-        plot_x_label = "Waiting time at POIs"
+        plot_x_label = "Waiting Time at POIs"
         label_ext = "waiting_time"
 
     # Plot results
@@ -338,7 +338,7 @@ def run_heatmap_congestion_vs_load_and_distribution(
 
         plt.tick_params(labelsize=14)
         # Axis labels & ticks
-        plt.xlabel("Guided Ratio (% of tourists)", fontsize=14)
+        plt.xlabel("Guided Ratio (% of Tourists)", fontsize=14)
         xticks = np.linspace(X.min(), X.max(), 6)
         plt.xticks(xticks, [f"{int(x*100)}%" for x in xticks])
 
@@ -371,11 +371,11 @@ def run_heatmap_congestion_vs_load_and_distribution(
     }
 
 
-USE_MODEL_EXT = True
+USE_MODEL_EXT = False
 
-run_once()
+# run_once()
 # run_multi_eval(1)
 # run_multi_eval(2)
 # run_multi_eval(3)
 # run_heatmap()
-# run_heatmap_congestion_vs_load_and_distribution()
+run_heatmap_congestion_vs_load_and_distribution()
