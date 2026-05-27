@@ -2,17 +2,21 @@ from model import BeliefModel
 import numpy as np
 import networkx as nx
 import matplotlib
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 from matplotlib.colors import LinearSegmentedColormap, Normalize
 from matplotlib.patches import Patch
 from matplotlib.cm import ScalarMappable
 from matplotlib.colors import Normalize, LinearSegmentedColormap
 
-N_STEP = 50
+N_STEP = 250
 belief_cmap = LinearSegmentedColormap.from_list(
     "belief_map", [(0, 0.5, 1.0), (1.0, 0.5, 0.2)], N=256
 )
 belief_norm = Normalize(vmin=0.5, vmax=0.9)
+
+grid_width=100
+grid_height=100
 
     
 def get_heatmap_style():
@@ -139,8 +143,8 @@ def plot_belief_state_from_model(model, step=None):
 
 def run_once():
     model = BeliefModel(
-        width=10,
-        height=10,
+        width=grid_width,
+        height=grid_height,
         dk_ratio=0.2,
         malicious_ratio=0.2,
         influencer_ratio=0.1,
@@ -194,13 +198,16 @@ def run_multi():
 
     for i, dk in enumerate(dk_values):
         for j, mal in enumerate(malicious_values):
+            print("running model ", i, j)
             model = BeliefModel(
+                width=grid_width,
+                height=grid_height,
                 dk_ratio=dk,
                 malicious_ratio=mal,
                 influencer_ratio=infl_value
             )
 
-            for _ in range(N_STEP*4):
+            for _ in range(N_STEP):
                 model.step()
 
             label = f"DK: {dk:.1f}, Mal: {mal:.1f}"
@@ -230,7 +237,12 @@ def run_heatmap_fixed_infl():
 
     for i, dk in enumerate(dk_values):
         for j, mal in enumerate(mal_values):
-            model = BeliefModel(dk_ratio=dk, malicious_ratio=mal, influencer_ratio=infl_value)
+            model = BeliefModel(
+                width=grid_width,
+                height=grid_height,
+                dk_ratio=dk,
+                malicious_ratio=mal,
+                influencer_ratio=infl_value)
             for _ in range(N_STEP):
                 model.step()
             result = np.mean(model.data_belief)
@@ -264,7 +276,12 @@ def run_heatmap_fixed_mal():
 
     for i, dk in enumerate(dk_values):
         for j, infl in enumerate(infl_values):
-            model = BeliefModel(dk_ratio=dk, malicious_ratio=mal_value, influencer_ratio=infl)
+            model = BeliefModel(
+                width=grid_width,
+                height=grid_height,
+                dk_ratio=dk,
+                malicious_ratio=mal_value,
+                influencer_ratio=infl)
             for _ in range(N_STEP):
                 model.step()
             result = np.mean(model.data_belief)
@@ -290,9 +307,6 @@ def run_heatmap_fixed_mal():
    
     
 def run_surface():
-    matplotlib.use('Agg')  # For headless (no window) mode
-    # or try this instead for interactive:
-    # matplotlib.use('QtAgg')  # if you have PyQt5 or PySide2 installed
     # Prepare data for 3D plot
     dk_values = np.linspace(0.1, 0.5, 9)
     mal_values = np.linspace(0.1, 0.5, 9)
@@ -302,7 +316,12 @@ def run_surface():
     # Run simulations
     for i in range(DK.shape[0]):
         for j in range(DK.shape[1]):
-            model = BeliefModel(dk_ratio=DK[i, j], malicious_ratio=MAL[i, j], influencer_ratio=0.1)
+            model = BeliefModel(
+                width=grid_width,
+                height=grid_height,
+                dk_ratio=DK[i, j],
+                malicious_ratio=MAL[i, j],
+                influencer_ratio=0.1)
             for _ in range(N_STEP):
                 model.step()
             result = np.mean(model.data_belief)

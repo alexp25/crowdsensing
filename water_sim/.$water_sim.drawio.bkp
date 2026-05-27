@@ -1,0 +1,70 @@
+<mxfile host="Electron" modified="2026-04-03T19:37:58.428Z" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/21.6.5 Chrome/114.0.5735.243 Electron/25.3.1 Safari/537.36" etag="zw6cMSKMbOVJ02zphggP" version="21.6.5" type="device">
+  <diagram name="Page-1" id="2gJiduCFXRlaetB0E2zK">
+    <mxGraphModel dx="1418" dy="820" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="5K9jP8ajqoWDzt2jkfr8-3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="5K9jP8ajqoWDzt2jkfr8-1" target="5K9jP8ajqoWDzt2jkfr8-2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="5K9jP8ajqoWDzt2jkfr8-1" value="Sensor Data Acquisition Layer" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="120" y="240" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="5K9jP8ajqoWDzt2jkfr8-6" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="5K9jP8ajqoWDzt2jkfr8-2" target="5K9jP8ajqoWDzt2jkfr8-5">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="5K9jP8ajqoWDzt2jkfr8-2" value="ABM Engine" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="340" y="240" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="5K9jP8ajqoWDzt2jkfr8-8" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="5K9jP8ajqoWDzt2jkfr8-5" target="5K9jP8ajqoWDzt2jkfr8-7">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="5K9jP8ajqoWDzt2jkfr8-5" value="Hydraulic Network Solver" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="560" y="240" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="5K9jP8ajqoWDzt2jkfr8-22" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="5K9jP8ajqoWDzt2jkfr8-7" target="5K9jP8ajqoWDzt2jkfr8-2">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="960" y="270" />
+              <mxPoint x="960" y="180" />
+              <mxPoint x="400" y="180" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="5K9jP8ajqoWDzt2jkfr8-7" value="Decision Support Interface" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="780" y="240" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="5K9jP8ajqoWDzt2jkfr8-9" value="" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;aspect=fixed;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="1">
+          <mxGeometry x="370" y="320" width="20" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="5K9jP8ajqoWDzt2jkfr8-11" value="" style="shape=mxgraph.signs.tech.rss;html=1;pointerEvents=1;fillColor=#dae8fc;strokeColor=#6c8ebf;verticalLabelPosition=bottom;verticalAlign=top;align=center;aspect=fixed;" vertex="1" parent="1">
+          <mxGeometry x="160" y="320" width="40" height="40.41" as="geometry" />
+        </mxCell>
+        <mxCell id="5K9jP8ajqoWDzt2jkfr8-12" value="" style="sketch=0;outlineConnect=0;fillColor=#0080F0;strokeColor=#82b366;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=12;fontStyle=0;aspect=fixed;pointerEvents=1;shape=mxgraph.aws4.mesh;" vertex="1" parent="1">
+          <mxGeometry x="600" y="320.92" width="40" height="39.49" as="geometry" />
+        </mxCell>
+        <mxCell id="5K9jP8ajqoWDzt2jkfr8-13" value="" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;aspect=fixed;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="1">
+          <mxGeometry x="390" y="320" width="20" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="5K9jP8ajqoWDzt2jkfr8-14" value="" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;aspect=fixed;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="1">
+          <mxGeometry x="410" y="320" width="20" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="5K9jP8ajqoWDzt2jkfr8-17" value="Reference consumption data" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="260" y="290.92" width="60" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="5K9jP8ajqoWDzt2jkfr8-18" value="Simulated demand profiles" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="480" y="290.92" width="60" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="5K9jP8ajqoWDzt2jkfr8-19" value="Flow, Pressure" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="700" y="290.92" width="60" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="5K9jP8ajqoWDzt2jkfr8-21" value="" style="image;aspect=fixed;html=1;points=[];align=center;fontSize=12;image=img/lib/azure2/other/Dashboard_Hub.svg;" vertex="1" parent="1">
+          <mxGeometry x="815" y="320" width="50" height="38.24" as="geometry" />
+        </mxCell>
+        <mxCell id="5K9jP8ajqoWDzt2jkfr8-23" value="Scenario definition" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="640" y="140.00000000000003" width="60" height="30" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
